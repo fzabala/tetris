@@ -1,0 +1,56 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "es6": true
+  },
+  "globals": {
+    "process": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:jest/recommended",
+    "plugin:jest/style"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "eqeqeq": "off",
+    "quotes": ["error", "double"],
+    "semi": ["error", "always"],
+    "indent": ["error", 4],
+    "space-unary-ops"  : 2,
+    "prefer-arrow-callback": "error",
+    "space-in-parens": ["error", "never"],
+    "space-before-function-paren": ["error", {
+      "anonymous": "never",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
+    "no-irregular-whitespace": 2,
+    "no-trailing-spaces": "error",
+    "keyword-spacing": ["error", {
+      "before": true,
+      "after": true
+    }],
+    "comma-spacing": ["error", {
+      "before": false,
+      "after": true
+    }],
+    "no-multi-spaces": 2,
+    "no-spaced-func": 2,
+    "block-spacing": 2,
+    "object-curly-spacing": [2, "always"],
+    "jest/no-disabled-tests": "warn",
+    "jest/no-focused-tests": "error",
+    "jest/no-identical-title": "error",
+    "jest/prefer-to-have-length": "warn",
+    "jest/valid-expect": "error",
+    "@typescript-eslint/no-unused-vars": "error"
+  },
+  "settings": {
+    "jest": {
+      "version": 27
+    }
+  }
+}

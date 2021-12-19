@@ -1,0 +1,11 @@
+export const GRID_SIZE = 30;
+export const GRID_WIDTH = 10;
+export const GRID_HEIGHT = 20;
+export const GRID_LINE_WIDTH = 1;
+export const GRID_LINE_COLOR = "#0000FF";
+export const GRID_BACKGROUND_COLOR = "#00FF00";
+export const GRID_LINE_COLOR_FILLED = "#0000FF";
+export const GRID_BACKGROUND_COLOR_FILLED = "#999999";
+export const GRID_TOP_MARGIN = 40;
+export const GRID_LEFT_MARGIN = 40;
+export const FILLED_CELL = "X";

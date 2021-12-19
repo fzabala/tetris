@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Board, Grid, Next, Piece } from "elements";
 import { ARROW_LEFT, ARROW_RIGHT, GRID_WIDTH, SPEED_DOWN } from "const";
-import { checkVerticalCollision, getMinXPiece, getPieceWidth } from "helpers";
+import { checkHorizontalCollision, checkVerticalCollision, getMinXPiece, getPieceWidth } from "helpers";
 import { fetchNewPiece, fetchNextPiece, setCollidedPiece, updateNewPiece, useAppDispatch, useAppSelector } from "store";
 import { GamePieceType } from "types";
 
@@ -72,19 +72,23 @@ const CanvasGame = () => {
                 let x = 0;
                 switch (keyState) {
                 case ARROW_LEFT:
-                    x = Math.max(updatedNewPiece.x - 1, getMinXPiece(updatedNewPiece.piece));
-                    updatedNewPiece = {
-                        ...updatedNewPiece,
-                        x,
-                    };
+                    if (!checkHorizontalCollision(updatedNewPiece, grid, -1)){
+                        x = Math.max(updatedNewPiece.x - 1, getMinXPiece(updatedNewPiece.piece));
+                        updatedNewPiece = {
+                            ...updatedNewPiece,
+                            x,
+                        };
+                    }
                     setAllowXMoves(false);
                     break;
                 case ARROW_RIGHT:
-                    x = Math.min(updatedNewPiece.x + 1, GRID_WIDTH - getPieceWidth(updatedNewPiece.piece) - 1);
-                    updatedNewPiece = {
-                        ...updatedNewPiece,
-                        x,
-                    };
+                    if (!checkHorizontalCollision(updatedNewPiece, grid, 1)){
+                        x = Math.min(updatedNewPiece.x + 1, GRID_WIDTH - getPieceWidth(updatedNewPiece.piece) - 1);
+                        updatedNewPiece = {
+                            ...updatedNewPiece,
+                            x,
+                        };
+                    }
                     setAllowXMoves(false);
                     break;
                 }

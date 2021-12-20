@@ -3,4 +3,3 @@ export const ARROW_DOWN = "ArrowDown";
 export const ARROW_LEFT = "ArrowLeft";
 export const ARROW_RIGHT = "ArrowRight";
 export const SPACE = "Space";
-export const SPEED_DOWN = 300;

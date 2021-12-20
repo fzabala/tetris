@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Board, Grid, Next, Piece } from "elements";
-import { ARROW_LEFT, ARROW_RIGHT, GRID_WIDTH, SPEED_DOWN } from "const";
+import { ARROW_LEFT, ARROW_RIGHT, GRID_WIDTH, SPEED_DOWN, ALLOW_X_MOVES_TIMEOUT } from "const";
 import { checkHorizontalCollision, checkVerticalCollision, getMinXPiece, getPieceWidth } from "helpers";
 import { fetchNewPiece, fetchNextPiece, setCollidedPiece, updateNewPiece, useAppDispatch, useAppSelector } from "store";
 import { GamePieceType } from "types";
@@ -44,7 +44,7 @@ const CanvasGame = () => {
 
     useEffect(() => {
         if (!allowXMoves) {
-            setTimeout(() => setAllowXMoves(true), 1000);
+            setTimeout(() => setAllowXMoves(true), ALLOW_X_MOVES_TIMEOUT);
         }
     }, [allowXMoves]);
 
@@ -99,13 +99,13 @@ const CanvasGame = () => {
                 if (checkVerticalCollision(newPiece, grid) && nextPiece) {
                     dispatch(setCollidedPiece(grid, newPiece, nextPiece));
                 } else {
+                    setAllowYMoves(false);
                     updatedNewPiece = {
                         ...updatedNewPiece,
                         y: updatedNewPiece.y + 1,
                     };
                     dispatch(updateNewPiece(updatedNewPiece));
                 }
-                setAllowYMoves(false);
             }
         }
     }, [context, allowXMoves, newPiece, keyState, nextPiece, dispatch]);

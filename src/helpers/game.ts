@@ -18,20 +18,20 @@ export const getRandomPiece = () => {
     return pieces[index];
 };
 
-export const getPieceWidth = (piece: PieceType) => {
-    const maxX = Math.max(...piece.blocks.map((block) => block.x));
-    const minX = Math.min(...piece.blocks.map((block) => block.x));
+export const getPieceWidth = (gamePiece: GamePieceType) => {
+    const maxX = Math.max(...gamePiece.piece.blocks[gamePiece.variation].map((block) => block.x));
+    const minX = Math.min(...gamePiece.piece.blocks[gamePiece.variation].map((block) => block.x));
     return maxX - minX + 1;
 };
 
-export const getMinXPiece = (piece: PieceType) => {
-    return -Math.min(...(piece.blocks).map((block) => block.x));
+export const getMinXPiece = (gamePiece: GamePieceType) => {
+    return -Math.min(...(gamePiece.piece.blocks[gamePiece.variation]).map((block) => block.x));
 };
 
 export const checkVerticalCollision = (gamePiece: GamePieceType, grid: (string | undefined)[][]) => {
     const collisionableBlocks: BlockType[] = [];
-    gamePiece.piece.blocks.forEach((block) => {
-        const avoidableBlock = gamePiece.piece.blocks.find((avoidableBlockItem) => avoidableBlockItem.x === block.x && avoidableBlockItem.y === block.y + 1);
+    gamePiece.piece.blocks[gamePiece.variation].forEach((block) => {
+        const avoidableBlock = gamePiece.piece.blocks[gamePiece.variation].find((avoidableBlockItem) => avoidableBlockItem.x === block.x && avoidableBlockItem.y === block.y + 1);
         if (!avoidableBlock){
             collisionableBlocks.push(block);
         }
@@ -48,8 +48,8 @@ export const checkVerticalCollision = (gamePiece: GamePieceType, grid: (string |
 
 export const checkHorizontalCollision = (gamePiece: GamePieceType, grid: (string | undefined)[][], move: number) => {
     const collisionableBlocks: BlockType[] = [];
-    gamePiece.piece.blocks.forEach((block) => {
-        const avoidableBlock = gamePiece.piece.blocks.find((avoidableBlockItem) => avoidableBlockItem.x === block.x + move && avoidableBlockItem.y === block.y);
+    gamePiece.piece.blocks[gamePiece.variation].forEach((block) => {
+        const avoidableBlock = gamePiece.piece.blocks[gamePiece.variation].find((avoidableBlockItem) => avoidableBlockItem.x === block.x + move && avoidableBlockItem.y === block.y);
         if (!avoidableBlock){
             collisionableBlocks.push(block);
         }

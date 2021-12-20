@@ -35,12 +35,12 @@ export const Board: IDrawable = {
 
         // draw new piece
 
-        for (let block of newPiece.piece.blocks) {
+        for (let block of newPiece.piece.blocks[newPiece.variation]) {
             context.fillStyle = newPiece.piece.color;
             context.fillRect(GRID_LEFT_MARGIN + (block.x + newPiece.x) * GRID_SIZE, GRID_TOP_MARGIN + (block.y + newPiece.y) * GRID_SIZE, GRID_SIZE, GRID_SIZE);
         }
 
-        for (let block of newPiece.piece.blocks) {
+        for (let block of newPiece.piece.blocks[newPiece.variation]) {
             context.fillStyle = newPiece.piece.borderColor;
             //right border
             context.fillRect(GRID_LEFT_MARGIN + (block.x + newPiece.x + 1) * GRID_SIZE - 1, GRID_TOP_MARGIN + (block.y + newPiece.y) * GRID_SIZE, GRID_LINE_WIDTH, GRID_SIZE);

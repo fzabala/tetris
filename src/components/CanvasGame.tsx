@@ -1,6 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Board, Grid, Next, Piece } from "elements";
-import { ARROW_LEFT, ARROW_RIGHT, GRID_WIDTH, SPEED_DOWN, ALLOW_X_MOVES_TIMEOUT } from "const";
+import {
+    ARROW_LEFT,
+    ARROW_RIGHT,
+    GRID_WIDTH,
+    SPEED_DOWN,
+    ALLOW_X_MOVES_TIMEOUT,
+    SPACE,
+    ALLOW_ROTATION_MOVES_TIMEOUT
+} from "const";
 import { checkHorizontalCollision, checkVerticalCollision, getMinXPiece, getPieceWidth } from "helpers";
 import { fetchNewPiece, fetchNextPiece, setCollidedPiece, updateNewPiece, useAppDispatch, useAppSelector } from "store";
 import { GamePieceType } from "types";
@@ -15,6 +23,7 @@ const CanvasGame = () => {
     const [context, setContext] = useState<CanvasRenderingContext2D>();
     const [keyState, setKeyState] = useState<string | undefined>(undefined);
     const { newPiece, nextPiece, grid } = useAppSelector((store) => store.game);
+    const [allowRotationMoves, setAllowRotationMoves] = useState(true);
     const [allowXMoves, setAllowXMoves] = useState(true);
     const [allowYMoves, setAllowYMoves] = useState(false);
 
@@ -49,6 +58,12 @@ const CanvasGame = () => {
     }, [allowXMoves]);
 
     useEffect(() => {
+        if (!allowRotationMoves) {
+            setTimeout(() => setAllowRotationMoves(true), ALLOW_ROTATION_MOVES_TIMEOUT);
+        }
+    }, [allowRotationMoves]);
+
+    useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas?.getContext("2d");
         if (canvas && ctx) {
@@ -57,7 +72,7 @@ const CanvasGame = () => {
     }, [setContext]);
 
     useEffect(() => {
-        if (!moveYTimeout.current && newPiece){
+        if (!moveYTimeout.current && newPiece) {
             moveYTimeout.current = setTimeout(() => {
                 setAllowYMoves(true);
                 moveYTimeout.current = null;
@@ -68,31 +83,45 @@ const CanvasGame = () => {
     const update = useCallback(() => {
         if (context && newPiece) {
             let updatedNewPiece: GamePieceType = { ...newPiece };
-            if (allowXMoves) {
-                let x = 0;
-                switch (keyState) {
-                case ARROW_LEFT:
-                    if (!checkHorizontalCollision(updatedNewPiece, grid, -1)){
-                        x = Math.max(updatedNewPiece.x - 1, getMinXPiece(updatedNewPiece.piece));
+            let variation: number;
+            let x = 0;
+            switch (keyState) {
+            case ARROW_LEFT:
+                if (allowXMoves) {
+                    if (!checkHorizontalCollision(updatedNewPiece, grid, -1)) {
+                        x = Math.max(updatedNewPiece.x - 1, getMinXPiece(updatedNewPiece));
                         updatedNewPiece = {
                             ...updatedNewPiece,
                             x,
                         };
                     }
                     setAllowXMoves(false);
-                    break;
-                case ARROW_RIGHT:
-                    if (!checkHorizontalCollision(updatedNewPiece, grid, 1)){
-                        x = Math.min(updatedNewPiece.x + 1, GRID_WIDTH - getPieceWidth(updatedNewPiece.piece) - 1);
-                        updatedNewPiece = {
-                            ...updatedNewPiece,
-                            x,
-                        };
-                    }
-                    setAllowXMoves(false);
-                    break;
                 }
+                break;
+            case ARROW_RIGHT:
+                if (allowXMoves) {
+                    if (!checkHorizontalCollision(updatedNewPiece, grid, 1)) {
+                        x = Math.min(updatedNewPiece.x + 1, GRID_WIDTH - getPieceWidth(updatedNewPiece) - 1);
+                        updatedNewPiece = {
+                            ...updatedNewPiece,
+                            x,
+                        };
+                    }
+                    setAllowXMoves(false);
+                }
+                break;
+            case SPACE:
+                if (allowRotationMoves) {
+                    variation = (updatedNewPiece.variation + 1) % updatedNewPiece.piece.blocks.length;
+                    updatedNewPiece = {
+                        ...updatedNewPiece,
+                        variation,
+                    };
+                    setAllowRotationMoves(false);
+                }
+                break;
             }
+
             dispatch(updateNewPiece(updatedNewPiece));
 
             if (allowYMoves) {
@@ -143,8 +172,7 @@ const CanvasGame = () => {
     }, [loopRef, tick]);
 
     return <>
-        <p>x:  {newPiece?.x}</p>
-        <p>y:  {newPiece?.y}</p>
+        <p>x: {JSON.stringify(allowRotationMoves)}</p>
         <canvas
             ref={canvasRef}
             width={CANVAS_WIDTH}

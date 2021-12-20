@@ -47,6 +47,7 @@ export const fetchNewPiece = (nextPiece: PieceType) => (dispatch: Dispatch): voi
         x: 3,
         y: 0,
         piece: nextPiece,
+        variation: 0,
     };
     dispatch(setNewPiece({ gamePiece }));
     dispatch(setNextPiece({ piece }));
@@ -63,7 +64,7 @@ export const updateNewPiece = (gamePiece: GamePieceType) => (dispatch: Dispatch)
 
 export const setCollidedPiece = (grid: GridType, newPiece: GamePieceType, nextPiece: PieceType) => (dispatch: Dispatch): void => {
     let updatedGrid: GridType = [...grid];
-    newPiece.piece.blocks.forEach((block) => {
+    newPiece.piece.blocks[newPiece.variation].forEach((block) => {
         const x = newPiece.x + block.x;
         const y = newPiece.y + block.y;
         const xRow = [...updatedGrid[x]];
@@ -99,6 +100,7 @@ export const setCollidedPiece = (grid: GridType, newPiece: GamePieceType, nextPi
         x: 3,
         y: 0,
         piece: nextPiece,
+        variation: 0,
     };
     dispatch(setNewPiece({ gamePiece }));
 

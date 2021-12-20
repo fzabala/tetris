@@ -1,7 +1,7 @@
 export type PieceType = {
     color: string,
     borderColor: string,
-    blocks: BlockType[],
+    blocks: BlockType[][],
 };
 
 export type BlockType = {

@@ -1,15 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Board, Grid, Next, Piece } from "elements";
 import {
+    ALLOW_ROTATION_MOVES_TIMEOUT,
+    ALLOW_X_MOVES_TIMEOUT,
     ARROW_LEFT,
     ARROW_RIGHT,
     GRID_WIDTH,
-    SPEED_DOWN,
-    ALLOW_X_MOVES_TIMEOUT,
     SPACE,
-    ALLOW_ROTATION_MOVES_TIMEOUT
+    SPEED_DOWN
 } from "const";
-import { checkHorizontalCollision, checkVerticalCollision, getMinXPiece, getPieceWidth } from "helpers";
+import {
+    checkHorizontalCollision,
+    checkVerticalCollision,
+    getFixedPositionHorizontalPosition,
+    getMinXPiece,
+    getPieceWidth
+} from "helpers";
 import { fetchNewPiece, fetchNextPiece, setCollidedPiece, updateNewPiece, useAppDispatch, useAppSelector } from "store";
 import { GamePieceType } from "types";
 
@@ -101,7 +107,7 @@ const CanvasGame = () => {
             case ARROW_RIGHT:
                 if (allowXMoves) {
                     if (!checkHorizontalCollision(updatedNewPiece, grid, 1)) {
-                        x = Math.min(updatedNewPiece.x + 1, GRID_WIDTH - getPieceWidth(updatedNewPiece) - 1);
+                        x = Math.min(updatedNewPiece.x + 1, GRID_WIDTH - getPieceWidth(updatedNewPiece));
                         updatedNewPiece = {
                             ...updatedNewPiece,
                             x,
@@ -112,11 +118,15 @@ const CanvasGame = () => {
                 break;
             case SPACE:
                 if (allowRotationMoves) {
-                    variation = (updatedNewPiece.variation + 1) % updatedNewPiece.piece.blocks.length;
-                    updatedNewPiece = {
-                        ...updatedNewPiece,
-                        variation,
-                    };
+                    const x = getFixedPositionHorizontalPosition(updatedNewPiece, grid);
+                    if (x !== undefined){
+                        variation = (updatedNewPiece.variation + 1) % updatedNewPiece.piece.blocks.length;
+                        updatedNewPiece = {
+                            ...updatedNewPiece,
+                            variation,
+                            x,
+                        };
+                    }
                     setAllowRotationMoves(false);
                 }
                 break;

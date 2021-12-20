@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Board, Grid, Next, Piece } from "elements";
 import {
-    ALLOW_ROTATION_MOVES_TIMEOUT,
-    ALLOW_X_MOVES_TIMEOUT,
+    ALLOW_ROTATION_MOVES_TIMEOUT, ALLOW_SPEED_MOVES_TIMEOUT,
+    ALLOW_X_MOVES_TIMEOUT, ARROW_DOWN,
     ARROW_LEFT,
     ARROW_RIGHT,
     GRID_WIDTH,
@@ -32,6 +32,7 @@ const CanvasGame = () => {
     const [allowRotationMoves, setAllowRotationMoves] = useState(true);
     const [allowXMoves, setAllowXMoves] = useState(true);
     const [allowYMoves, setAllowYMoves] = useState(false);
+    const [allowSpeedMoves, setAllowSpeedMoves] = useState(false);
 
     const dispatch = useAppDispatch();
 
@@ -68,6 +69,12 @@ const CanvasGame = () => {
             setTimeout(() => setAllowRotationMoves(true), ALLOW_ROTATION_MOVES_TIMEOUT);
         }
     }, [allowRotationMoves]);
+
+    useEffect(() => {
+        if (!allowSpeedMoves) {
+            setTimeout(() => setAllowSpeedMoves(true), ALLOW_SPEED_MOVES_TIMEOUT);
+        }
+    }, [allowSpeedMoves]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -115,6 +122,9 @@ const CanvasGame = () => {
                     }
                     setAllowXMoves(false);
                 }
+                break;
+            case ARROW_DOWN:
+                setAllowYMoves(true);
                 break;
             case SPACE:
                 if (allowRotationMoves) {

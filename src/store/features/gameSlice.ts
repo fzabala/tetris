@@ -70,14 +70,39 @@ export const setCollidedPiece = (grid: GridType, newPiece: GamePieceType, nextPi
         xRow[y] = FILLED_CELL;
         updatedGrid[x] = [...xRow];
     });
+    const completedLines: Record<string, any> = {};
+    updatedGrid.forEach((column) => {
+        column.forEach((cell, cIndex) => {
+            if (typeof completedLines[cIndex] === "undefined") {
+                completedLines[cIndex] = true;
+            }
+            completedLines[cIndex] = completedLines[cIndex] && cell !== "";
+        });
+    });
+
+    const linesToRemove = Object.entries(completedLines).map((e) => e[1] ? parseInt(e[0]) : null).filter(e => e !== null);
+
+    updatedGrid.forEach((column, colIndex) => {
+        column.forEach((cell, cellIndex) => {
+            if (linesToRemove.indexOf(cellIndex) !== -1) {
+                for (let i = cellIndex; i> 0; i--){
+                    const xRow = [...updatedGrid[colIndex]];
+                    xRow[i] = xRow[i - 1];
+                    updatedGrid[colIndex] = [...xRow];
+                }
+            }
+        });
+    });
+    dispatch(setGrid({ grid: updatedGrid }));
+
     const gamePiece = {
         x: 3,
         y: 0,
         piece: nextPiece,
     };
-    const piece = { ...getRandomPiece() };
-    dispatch(setGrid({ grid: updatedGrid }));
     dispatch(setNewPiece({ gamePiece }));
+
+    const piece = { ...getRandomPiece() };
     dispatch(setNextPiece({ piece }));
 };
 

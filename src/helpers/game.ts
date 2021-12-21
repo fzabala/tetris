@@ -1,6 +1,6 @@
 import { Piece1, Piece2, Piece3, Piece4, Piece5, Piece6, Piece7 } from "pieces";
 import { BlockType, GamePieceType, GridType, PieceType } from "types";
-import { GRID_WIDTH } from "../const";
+import { BASE_SCORE, GRID_WIDTH } from "const";
 
 export const getRandomPiece = () => {
     const pieces: PieceType[] = [
@@ -79,6 +79,18 @@ export const checkOverlapping = (gamePiece: GamePieceType, grid: GridType) => {
         const y = gamePiece.y + block.y;
         return output || (x >= 0 && x < GRID_WIDTH ? grid[x][y] !== "" : true);
     }, false);
+};
+
+export const calculateScore = (completedLines: number, lines: number, level: number) => {
+    let updatedLevel = level;
+    const score = BASE_SCORE[completedLines] * (level);
+    // https://tetris.fandom.com/wiki/Tetris_(NES,_Nintendo)
+    const linesToNextLevel = Math.min(level * 10 + 10, Math.max(100, (level + 1) * 10 - 50));
+    if (lines + completedLines > linesToNextLevel) {
+        updatedLevel = updatedLevel + 1;
+    }
+
+    return { updatedLevel, score };
 };
 
 export const getFixedPositionHorizontalPosition = (gamePiece: GamePieceType, grid: GridType) => {

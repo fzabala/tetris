@@ -43,7 +43,7 @@ const CanvasGame = () => {
     const moveYTimeout = useRef<any>(null);
     const [context, setContext] = useState<CanvasRenderingContext2D>();
     const [keyState, setKeyState] = useState<string | undefined>(undefined);
-    const { newPiece, nextPiece, grid, gameStarted, gamePaused, gameOver } = useAppSelector((store) => store.game);
+    const { newPiece, nextPiece, grid, gameStarted, gamePaused, gameOver, lines, level } = useAppSelector((store) => store.game);
     const [allowRotationMoves, setAllowRotationMoves] = useState(true);
     const [allowXMoves, setAllowXMoves] = useState(true);
     const [allowYMoves, setAllowYMoves] = useState(false);
@@ -176,7 +176,7 @@ const CanvasGame = () => {
 
             if (allowYMoves) {
                 if (checkVerticalCollision(newPiece, grid) && nextPiece) {
-                    dispatch(setCollidedPiece(grid, newPiece, nextPiece));
+                    dispatch(setCollidedPiece(grid, newPiece, nextPiece, lines, level));
                 } else {
                     setAllowYMoves(false);
                     updatedNewPiece = {

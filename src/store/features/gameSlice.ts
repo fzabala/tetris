@@ -4,10 +4,10 @@ import {
     GamePieceType,
     GridPayloadActionType, GridType, PausedGamePayloadActionType,
     PiecePayloadActionType,
-    PieceType,
+    PieceType, ScoreGamePayloadActionType,
 } from "types";
 import { FILLED_CELL, GRID_HEIGHT, GRID_WIDTH } from "const";
-import { checkOverlapping, getRandomPiece } from "helpers";
+import { calculateScore, checkOverlapping, getRandomPiece } from "helpers";
 
 interface GameState {
     gameOver: boolean,
@@ -18,6 +18,7 @@ interface GameState {
     grid: GridType,
     nextPiece?: PieceType,
     newPiece?: GamePieceType,
+    level: number,
 }
 
 const initialState: GameState = {
@@ -27,6 +28,7 @@ const initialState: GameState = {
     score: 0,
     lines: 0,
     grid: (new Array(GRID_WIDTH)).fill([]).map(() => (new Array(GRID_HEIGHT)).fill("")),
+    level: 0,
 };
 
 export const gameSlice = createSlice({
@@ -58,10 +60,15 @@ export const gameSlice = createSlice({
             state.gamePaused = false;
             state.gameOver = true;
         },
+        setScore: (state: GameState, action: PayloadAction<ScoreGamePayloadActionType>) => {
+            state.score = state.score + action.payload.score;
+            state.level = action.payload.updatedLevel;
+            state.lines = state.lines + action.payload.lines;
+        },
     }
 });
 
-const { setNextPiece, setNewPiece, setGrid, setStartedGame, setPausedGame, setGameOver } = gameSlice.actions;
+const { setNextPiece, setNewPiece, setGrid, setStartedGame, setPausedGame, setGameOver, setScore } = gameSlice.actions;
 
 export const fetchNewPiece = (nextPiece: PieceType) => (dispatch: Dispatch): void => {
     const piece = { ...getRandomPiece() };
@@ -89,7 +96,7 @@ export const pauseResumeGame = (gamePaused: boolean) => (dispatch: Dispatch): vo
     dispatch(setPausedGame({ gamePaused }));
 };
 
-export const setCollidedPiece = (grid: GridType, newPiece: GamePieceType, nextPiece: PieceType) => (dispatch: Dispatch): void => {
+export const setCollidedPiece = (grid: GridType, newPiece: GamePieceType, nextPiece: PieceType, lines: number, level: number) => (dispatch: Dispatch): void => {
     let updatedGrid: GridType = [...grid];
     newPiece.piece.blocks[newPiece.variation].forEach((block) => {
         const x = newPiece.x + block.x;
@@ -122,6 +129,9 @@ export const setCollidedPiece = (grid: GridType, newPiece: GamePieceType, nextPi
         });
     });
     dispatch(setGrid({ grid: updatedGrid }));
+
+    const { score, updatedLevel } = calculateScore(linesToRemove.length, lines, level);
+    dispatch(setScore({ score, updatedLevel, lines: linesToRemove.length }));
 
     const gamePiece = {
         x: 3,

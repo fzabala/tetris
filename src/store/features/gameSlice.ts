@@ -2,14 +2,17 @@ import { createSlice, Dispatch, PayloadAction } from "@reduxjs/toolkit";
 import {
     GamePiecePayloadActionType,
     GamePieceType,
-    GridPayloadActionType, GridType,
+    GridPayloadActionType, GridType, PausedGamePayloadActionType,
     PiecePayloadActionType,
     PieceType,
 } from "types";
 import { FILLED_CELL, GRID_HEIGHT, GRID_WIDTH } from "const";
-import { getRandomPiece } from "../../helpers";
+import { getRandomPiece } from "helpers";
 
 interface GameState {
+    gameOver: boolean,
+    gameStarted: boolean,
+    gamePaused: boolean,
     score: number,
     lines: number,
     grid: GridType,
@@ -18,6 +21,9 @@ interface GameState {
 }
 
 const initialState: GameState = {
+    gameOver: false,
+    gameStarted: false,
+    gamePaused: false,
     score: 0,
     lines: 0,
     grid: (new Array(GRID_WIDTH)).fill([]).map(() => (new Array(GRID_HEIGHT)).fill("")),
@@ -36,10 +42,18 @@ export const gameSlice = createSlice({
         setGrid: (state: GameState, action: PayloadAction<GridPayloadActionType>) => {
             state.grid = action.payload.grid;
         },
+        setStartedGame: (state: GameState) => {
+            state.gameStarted = true;
+            state.gamePaused = false;
+            state.gameOver = false;
+        },
+        setPausedGame: (state: GameState, action: PayloadAction<PausedGamePayloadActionType>) => {
+            state.gamePaused = !action.payload.gamePaused;
+        },
     }
 });
 
-const { setNextPiece, setNewPiece, setGrid } = gameSlice.actions;
+const { setNextPiece, setNewPiece, setGrid, setStartedGame, setPausedGame } = gameSlice.actions;
 
 export const fetchNewPiece = (nextPiece: PieceType) => (dispatch: Dispatch): void => {
     const piece = { ...getRandomPiece() };
@@ -53,13 +67,18 @@ export const fetchNewPiece = (nextPiece: PieceType) => (dispatch: Dispatch): voi
     dispatch(setNextPiece({ piece }));
 };
 
-export const fetchNextPiece = () => (dispatch: Dispatch): void => {
+export const updateNewPiece = (gamePiece: GamePieceType) => (dispatch: Dispatch): void => {
+    dispatch(setNewPiece({ gamePiece }));
+};
+
+export const startGame = () => (dispatch: Dispatch): void => {
+    dispatch(setStartedGame());
     const piece = { ...getRandomPiece() };
     dispatch(setNextPiece({ piece }));
 };
 
-export const updateNewPiece = (gamePiece: GamePieceType) => (dispatch: Dispatch): void => {
-    dispatch(setNewPiece({ gamePiece }));
+export const pauseResumeGame = (gamePaused: boolean) => (dispatch: Dispatch): void => {
+    dispatch(setPausedGame({ gamePaused }));
 };
 
 export const setCollidedPiece = (grid: GridType, newPiece: GamePieceType, nextPiece: PieceType) => (dispatch: Dispatch): void => {

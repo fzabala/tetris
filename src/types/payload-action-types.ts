@@ -11,3 +11,6 @@ export type GamePiecePayloadActionType = {
 export type GridPayloadActionType = {
     grid: GridType;
 }
+export type PausedGamePayloadActionType = {
+    gamePaused: boolean;
+}

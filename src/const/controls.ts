@@ -1,0 +1,14 @@
+export const FONT_SIZE = 30;
+export const FONT_WIDTH = FONT_SIZE / 5 * 4;
+export const FONT_FAMILY = "Courier new";
+export const START_GAME_TEXT = "Start";
+export const START_GAME_X = 400;
+export const START_GAME_Y = 400;
+export const START_GAME_W = (START_GAME_TEXT.length + 2) * FONT_WIDTH;
+export const START_GAME_H = FONT_SIZE * 2;
+export const PAUSE_GAME_TEXT = "Pause";
+export const RESUME_GAME_TEXT = "Resume";
+export const PAUSE_RESUME_GAME_X = 400;
+export const PAUSE_RESUME_GAME_Y = 400;
+export const PAUSE_RESUME_GAME_W = 10 * FONT_WIDTH;
+export const PAUSE_RESUME_GAME_H = FONT_SIZE * 2;

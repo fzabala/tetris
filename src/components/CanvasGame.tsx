@@ -1,13 +1,20 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Board, Grid, Next, Piece } from "elements";
+import { Board, Button, Grid, Next, Piece } from "elements";
 import {
-    ALLOW_ROTATION_MOVES_TIMEOUT, ALLOW_SPEED_MOVES_TIMEOUT,
-    ALLOW_X_MOVES_TIMEOUT, ARROW_DOWN,
+    ALLOW_ROTATION_MOVES_TIMEOUT,
+    ALLOW_SPEED_MOVES_TIMEOUT,
+    ALLOW_X_MOVES_TIMEOUT,
+    ARROW_DOWN,
     ARROW_LEFT,
     ARROW_RIGHT,
-    GRID_WIDTH,
+    GRID_WIDTH, PAUSE_RESUME_GAME_H, PAUSE_GAME_TEXT, PAUSE_RESUME_GAME_W, PAUSE_RESUME_GAME_X, PAUSE_RESUME_GAME_Y,
     SPACE,
-    SPEED_DOWN
+    SPEED_DOWN,
+    START_GAME_H,
+    START_GAME_TEXT,
+    START_GAME_W,
+    START_GAME_X,
+    START_GAME_Y, RESUME_GAME_TEXT
 } from "const";
 import {
     checkHorizontalCollision,
@@ -16,7 +23,15 @@ import {
     getMinXPiece,
     getPieceWidth
 } from "helpers";
-import { fetchNewPiece, fetchNextPiece, setCollidedPiece, updateNewPiece, useAppDispatch, useAppSelector } from "store";
+import {
+    fetchNewPiece,
+    pauseResumeGame,
+    setCollidedPiece,
+    startGame,
+    updateNewPiece,
+    useAppDispatch,
+    useAppSelector,
+} from "store";
 import { GamePieceType } from "types";
 
 const CANVAS_HEIGHT = 700;
@@ -28,7 +43,7 @@ const CanvasGame = () => {
     const moveYTimeout = useRef<any>(null);
     const [context, setContext] = useState<CanvasRenderingContext2D>();
     const [keyState, setKeyState] = useState<string | undefined>(undefined);
-    const { newPiece, nextPiece, grid } = useAppSelector((store) => store.game);
+    const { newPiece, nextPiece, grid, gameStarted, gamePaused } = useAppSelector((store) => store.game);
     const [allowRotationMoves, setAllowRotationMoves] = useState(true);
     const [allowXMoves, setAllowXMoves] = useState(true);
     const [allowYMoves, setAllowYMoves] = useState(false);
@@ -38,7 +53,6 @@ const CanvasGame = () => {
 
     useEffect(() => {
         // just for initial setup
-        dispatch(fetchNextPiece());
         document.addEventListener("keydown", (event) => {
             setKeyState(event.code);
         });
@@ -51,6 +65,22 @@ const CanvasGame = () => {
             document.removeEventListener("keyup", () => setKeyState(undefined));
         };
     }, []);
+
+    const handleClick = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const xCanvas = event.clientX - (event.target as HTMLCanvasElement).offsetLeft;
+        const yCanvas = event.clientY - (event.target as HTMLCanvasElement).offsetTop;
+        // start button
+        if (
+            (xCanvas > START_GAME_X && xCanvas < (START_GAME_X + START_GAME_W)) &&
+            (yCanvas > START_GAME_Y && yCanvas < (START_GAME_Y + START_GAME_H))
+        ) {
+            if (!gameStarted) {
+                dispatch(startGame());
+            } else {
+                dispatch(pauseResumeGame(gamePaused));
+            }
+        }
+    };
 
     useEffect(() => {
         if (nextPiece && !newPiece) {
@@ -94,7 +124,7 @@ const CanvasGame = () => {
     }, [newPiece]);
 
     const update = useCallback(() => {
-        if (context && newPiece) {
+        if (context && newPiece && !gamePaused) {
             let updatedNewPiece: GamePieceType = { ...newPiece };
             let variation: number;
             let x = 0;
@@ -129,7 +159,7 @@ const CanvasGame = () => {
             case SPACE:
                 if (allowRotationMoves) {
                     const x = getFixedPositionHorizontalPosition(updatedNewPiece, grid);
-                    if (x !== undefined){
+                    if (x !== undefined) {
                         variation = (updatedNewPiece.variation + 1) % updatedNewPiece.piece.blocks.length;
                         updatedNewPiece = {
                             ...updatedNewPiece,
@@ -157,7 +187,7 @@ const CanvasGame = () => {
                 }
             }
         }
-    }, [context, allowXMoves, newPiece, keyState, nextPiece, dispatch]);
+    }, [context, allowXMoves, newPiece, keyState, nextPiece, dispatch, gamePaused]);
 
     const draw = useCallback(() => {
         if (context) {
@@ -175,8 +205,13 @@ const CanvasGame = () => {
             if (nextPiece) {
                 Piece.draw(context, nextPiece);
             }
+            if (!gameStarted) {
+                Button.draw(context, START_GAME_X, START_GAME_Y, START_GAME_W, START_GAME_H, START_GAME_TEXT);
+            } else {
+                Button.draw(context, PAUSE_RESUME_GAME_X, PAUSE_RESUME_GAME_Y, PAUSE_RESUME_GAME_W, PAUSE_RESUME_GAME_H, gamePaused ? RESUME_GAME_TEXT : PAUSE_GAME_TEXT);
+            }
         }
-    }, [context, nextPiece, newPiece]);
+    }, [context, nextPiece, newPiece, gamePaused]);
 
     const tick = useCallback(() => {
         loopRef.current = requestAnimationFrame(tick);
@@ -192,8 +227,9 @@ const CanvasGame = () => {
     }, [loopRef, tick]);
 
     return <>
-        <p>x: {JSON.stringify(allowRotationMoves)}</p>
+        <p>x: {JSON.stringify(gamePaused)}</p>
         <canvas
+            onClick={handleClick}
             ref={canvasRef}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}/>

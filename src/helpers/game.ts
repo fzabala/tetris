@@ -73,7 +73,7 @@ export const checkHorizontalCollision = (gamePiece: GamePieceType, grid: GridTyp
     return collided;
 };
 
-const checkOverlapping = (gamePiece: GamePieceType, grid: GridType) => {
+export const checkOverlapping = (gamePiece: GamePieceType, grid: GridType) => {
     return gamePiece.piece.blocks[gamePiece.variation].reduce((output: boolean, block: BlockType) => {
         const x = gamePiece.x + block.x;
         const y = gamePiece.y + block.y;

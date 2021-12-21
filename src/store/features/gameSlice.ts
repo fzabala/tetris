@@ -7,7 +7,7 @@ import {
     PieceType,
 } from "types";
 import { FILLED_CELL, GRID_HEIGHT, GRID_WIDTH } from "const";
-import { getRandomPiece } from "helpers";
+import { checkOverlapping, getRandomPiece } from "helpers";
 
 interface GameState {
     gameOver: boolean,
@@ -43,6 +43,9 @@ export const gameSlice = createSlice({
             state.grid = action.payload.grid;
         },
         setStartedGame: (state: GameState) => {
+            state.grid = (new Array(GRID_WIDTH)).fill([]).map(() => (new Array(GRID_HEIGHT)).fill(""));
+            state.nextPiece = undefined;
+            state.newPiece = undefined;
             state.gameStarted = true;
             state.gamePaused = false;
             state.gameOver = false;
@@ -50,10 +53,15 @@ export const gameSlice = createSlice({
         setPausedGame: (state: GameState, action: PayloadAction<PausedGamePayloadActionType>) => {
             state.gamePaused = !action.payload.gamePaused;
         },
+        setGameOver: (state: GameState) => {
+            state.gameStarted = false;
+            state.gamePaused = false;
+            state.gameOver = true;
+        },
     }
 });
 
-const { setNextPiece, setNewPiece, setGrid, setStartedGame, setPausedGame } = gameSlice.actions;
+const { setNextPiece, setNewPiece, setGrid, setStartedGame, setPausedGame, setGameOver } = gameSlice.actions;
 
 export const fetchNewPiece = (nextPiece: PieceType) => (dispatch: Dispatch): void => {
     const piece = { ...getRandomPiece() };
@@ -121,10 +129,15 @@ export const setCollidedPiece = (grid: GridType, newPiece: GamePieceType, nextPi
         piece: nextPiece,
         variation: 0,
     };
-    dispatch(setNewPiece({ gamePiece }));
+    if (checkOverlapping(gamePiece, grid)) {
+        console.log("game over");
+        dispatch(setGameOver());
+    } else {
+        dispatch(setNewPiece({ gamePiece }));
 
-    const piece = { ...getRandomPiece() };
-    dispatch(setNextPiece({ piece }));
+        const piece = { ...getRandomPiece() };
+        dispatch(setNextPiece({ piece }));
+    }
 };
 
 export default gameSlice.reducer;

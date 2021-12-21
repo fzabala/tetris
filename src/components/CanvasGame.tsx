@@ -43,7 +43,7 @@ const CanvasGame = () => {
     const moveYTimeout = useRef<any>(null);
     const [context, setContext] = useState<CanvasRenderingContext2D>();
     const [keyState, setKeyState] = useState<string | undefined>(undefined);
-    const { newPiece, nextPiece, grid, gameStarted, gamePaused } = useAppSelector((store) => store.game);
+    const { newPiece, nextPiece, grid, gameStarted, gamePaused, gameOver } = useAppSelector((store) => store.game);
     const [allowRotationMoves, setAllowRotationMoves] = useState(true);
     const [allowXMoves, setAllowXMoves] = useState(true);
     const [allowYMoves, setAllowYMoves] = useState(false);
@@ -124,7 +124,7 @@ const CanvasGame = () => {
     }, [newPiece]);
 
     const update = useCallback(() => {
-        if (context && newPiece && !gamePaused) {
+        if (context && newPiece && !gamePaused && !gameOver) {
             let updatedNewPiece: GamePieceType = { ...newPiece };
             let variation: number;
             let x = 0;
@@ -227,7 +227,7 @@ const CanvasGame = () => {
     }, [loopRef, tick]);
 
     return <>
-        <p>x: {JSON.stringify(gamePaused)}</p>
+        <p>x: {JSON.stringify(gameOver)}</p>
         <canvas
             onClick={handleClick}
             ref={canvasRef}

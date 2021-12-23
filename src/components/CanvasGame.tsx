@@ -14,7 +14,12 @@ import {
     START_GAME_TEXT,
     START_GAME_W,
     START_GAME_X,
-    START_GAME_Y, RESUME_GAME_TEXT
+    START_GAME_Y,
+    RESUME_GAME_TEXT,
+    SCORE_TEXT_X,
+    SCORE_TEXT_Y,
+    SCORE_TEXT_W,
+    SCORE_TEXT_H
 } from "const";
 import {
     checkHorizontalCollision,
@@ -33,6 +38,7 @@ import {
     useAppSelector,
 } from "store";
 import { GamePieceType } from "types";
+import { TextBox } from "../elements/TextBox";
 
 const CANVAS_HEIGHT = 700;
 const CANVAS_WIDTH = 600;
@@ -43,7 +49,17 @@ const CanvasGame = () => {
     const moveYTimeout = useRef<any>(null);
     const [context, setContext] = useState<CanvasRenderingContext2D>();
     const [keyState, setKeyState] = useState<string | undefined>(undefined);
-    const { newPiece, nextPiece, grid, gameStarted, gamePaused, gameOver, lines, level } = useAppSelector((store) => store.game);
+    const {
+        newPiece,
+        nextPiece,
+        grid,
+        gameStarted,
+        gamePaused,
+        gameOver,
+        lines,
+        level,
+        score
+    } = useAppSelector((store) => store.game);
     const [allowRotationMoves, setAllowRotationMoves] = useState(true);
     const [allowXMoves, setAllowXMoves] = useState(true);
     const [allowYMoves, setAllowYMoves] = useState(false);
@@ -210,8 +226,14 @@ const CanvasGame = () => {
             } else {
                 Button.draw(context, PAUSE_RESUME_GAME_X, PAUSE_RESUME_GAME_Y, PAUSE_RESUME_GAME_W, PAUSE_RESUME_GAME_H, gamePaused ? RESUME_GAME_TEXT : PAUSE_GAME_TEXT);
             }
+            TextBox.draw(context, SCORE_TEXT_X, SCORE_TEXT_Y, SCORE_TEXT_W, SCORE_TEXT_H, "Score", 0.6);
+            TextBox.draw(context, SCORE_TEXT_X, SCORE_TEXT_Y + 25, SCORE_TEXT_W, SCORE_TEXT_H, score, 0.4);
+            TextBox.draw(context, SCORE_TEXT_X, SCORE_TEXT_Y + 80, SCORE_TEXT_W, SCORE_TEXT_H, "Lines", 0.6);
+            TextBox.draw(context, SCORE_TEXT_X, SCORE_TEXT_Y + 105, SCORE_TEXT_W, SCORE_TEXT_H, lines, 0.4);
+            TextBox.draw(context, SCORE_TEXT_X, SCORE_TEXT_Y + 160, SCORE_TEXT_W, SCORE_TEXT_H, "Level", 0.6);
+            TextBox.draw(context, SCORE_TEXT_X, SCORE_TEXT_Y + 185, SCORE_TEXT_W, SCORE_TEXT_H, level, 0.4);
         }
-    }, [context, nextPiece, newPiece, gamePaused]);
+    }, [context, nextPiece, newPiece, gamePaused, score, lines, level]);
 
     const tick = useCallback(() => {
         loopRef.current = requestAnimationFrame(tick);

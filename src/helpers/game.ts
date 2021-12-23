@@ -83,7 +83,7 @@ export const checkOverlapping = (gamePiece: GamePieceType, grid: GridType) => {
 
 export const calculateScore = (completedLines: number, lines: number, level: number) => {
     let updatedLevel = level;
-    const score = BASE_SCORE[completedLines] * (level);
+    const score = BASE_SCORE[completedLines] * (level + 1);
     // https://tetris.fandom.com/wiki/Tetris_(NES,_Nintendo)
     const linesToNextLevel = Math.min(level * 10 + 10, Math.max(100, (level + 1) * 10 - 50));
     if (lines + completedLines > linesToNextLevel) {
